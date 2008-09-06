@@ -7,9 +7,6 @@ Author: Gary King
 (defpackage :trivial-timeout-system (:use #:cl #:asdf))
 (in-package :trivial-timeout-system)
 
-(load (let ((*default-pathname-defaults* *load-pathname*))
-	(merge-pathnames "asdf-featurep.lisp")))
-
 (defsystem trivial-timeout
   :version "0.1.0"
   :author "Gary Warren King <gwking@metabang.com>"
@@ -21,21 +18,19 @@ Author: Gary King
 		:pathname "dev/"
 		:components 
 		((:static-file "notes.text")))
+
 	       (:module 
 		"setup"
 		:pathname "dev/"
 		:components 
-		((:featurep-source-file 
-		  "package"
-		  :feature (not :com.metabang.trivial-timeout))))
+		((:file "package")))
 	       (:module 
 		"timeout"
 		:pathname "dev/"
 		:depends-on ("setup")
 		:components 
-		((:featurep-source-file 
-		  "with-timeout"
-		  :feature (not :com.metabang.trivial-timeout))))
+		((:file "with-timeout")))
+
                (:module 
 		"website"
 		:components
