@@ -1,5 +1,9 @@
 (in-package #:com.metabang.trivial-timeout)
 
+(unless (and (find-symbol (symbol-name '#:with-timeout)
+			  '#:com.metabang.trivial-timeout)
+	     (fboundp (find-symbol (symbol-name '#:with-timeout)
+			  '#:com.metabang.trivial-timeout)))
 (define-condition timeout-error (error)
                   ()
   (:report (lambda (c s)
@@ -60,6 +64,4 @@
 		#-(or allegro cmu sb-thread openmcl ccl mcl digitool)
 		(progn (doit)))
 	       (t
-		(doit)))))))
-
-(pushnew :com.metabang.trivial-timeout *features*)
+		(doit))))))))
