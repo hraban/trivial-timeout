@@ -1,6 +1,6 @@
 (in-package #:asdf)
 
-(eval-when (:compile-toplevel :load-toplevel :evaluate)
+(eval-when (:compile-toplevel :load-toplevel :execute)
   (export '(featurep-source-file)))
 
 (unless (and (find-symbol (symbol-name 'featurep) '#:asdf)
@@ -11,7 +11,9 @@
       (symbol
        (member feature-expression *features*))
       (cons
-       (let ((bool (intern (car feature-expression) 
+       (let ((bool (intern (etypecase (car feature-expression)
+			     (symbol (symbol-name (car feature-expression)))
+			     (string (car feature-expression)))
 			   (load-time-value (find-package :keyword)))))
          (ecase bool
            (:and
