@@ -1,33 +1,46 @@
 {include resources/header.md}
-{set-property title "trivial-timeout - Getting out of Lisp more..."}
+{set-property title "trivial-timeout | metabang.com"}
 
 <div class="contents">
 <div class="system-links">
 
-  * [Mailing Lists][3]
-  * [Getting it][4]
-  * [News][6]
-  * [Test results][tr]
-  * [Changelog][7]
-
-   [3]: #mailing-lists
-   [4]: #downloads
-   [5]: documentation/ (documentation link)
-   [6]: #news
-   [7]: changelog.html
-   [tr]: test-report.html
+  * [Mailing Lists][]
+  * [Getting it][]
+  * [News][]
+  * [Test results][]
+  * [Changelog][]
 
 </div>
 <div class="system-description">
 
 ### What it is
 
-Trivial shell is a simple platform independent interface to
-the underlying Operating System. It includes:
+Sometimes you don't have the time to wait. 
 
- * [get-env-var][],
- * [os-process-id][] and, of course,
- * [shell-command][]
+Although most Lisps have a mechanism to write code that says
+"do _this_ for 5 seconds and give up if you're not done",
+they didn't agree on exactly what that mechanism should look
+like. Trivial-timeout steps into the gap with a platform
+independent syntax for timeouts. You use it like this:
+
+    (with-timeout (duration)
+      (run-some-long-running-code))
+
+If `duration` (a time in seconds) is exceeded, then a
+`timeout-error` will be signaled. A more idiomatic example 
+would probably be:
+
+    (handler-case
+      (with-timeout (60)
+        (make-microwave-popcorn))
+      (timeout-error (c)
+        (declare (ignore c))
+        (print "I wanted to make popcorn, but who has the time these days")))
+
+Here's the full skinny:
+
+{docs with-timeout}
+{docs timeout-error}
  
 {anchor mailing-lists}
 
@@ -42,7 +55,7 @@ the underlying Operating System. It includes:
 
 A [darcs][] repository is available. The darcs command is:
     
-    darcs get http://common-lisp.net/project/trivial-timeout
+    darcs get {{property darcs-link}}
 
 trivial-timeout is also [ASDF installable][asdf-install]. Its
 CLiki home is right [where][cliki-home] you'd
@@ -55,13 +68,8 @@ There's also a handy [gzipped tar file][tarball].
 
 ### What is happening
 
-10 Jun 2008 - S'S'S'Syncing up with the jones
-
-6 Nov 2007 - Pulled website to [CL-Markdown][] format,
-brought in some patches (thanks!)
-
-17 May 2006 - Created site. trivial-timeout forks and builds on
-the code in Kevin Rosenburg's handy [KMRCL tools][KMRCL].
+10 Sept 2008 - Separated trivial-timeout from [lift][] and
+[trivial-shell][]. There was much rejoicing.
 
 </div>
 </div>
