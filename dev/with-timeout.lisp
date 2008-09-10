@@ -9,9 +9,17 @@
                   ()
   (:report (lambda (c s)
 	     (declare (ignore c))
-	     (format s "Process timeout"))))
+	     (format s "Process timeout")))
+  (:documentation "An error signaled when the duration specified in 
+the [with-timeout][] is exceeded."))
 
 (defmacro with-timeout ((seconds) &body body)
+  "Execute `body` for no more than `seconds` time. 
+
+If `seconds` is exceeded, then a [timeout-error][] will be signaled. 
+
+If `seconds` is nil, then the body will be run normally until it completes
+or is interrupted."
   (let ((gseconds (gensym "seconds-"))
 	#+(and sbcl (not sb-thread))
 	(glabel (gensym "label-"))
@@ -62,7 +70,7 @@
 			   (ccl:process-kill ,process)
 			   (cerror "Timeout" 'timeout-error))
 			 (values ,result)))
-		#-(or allegro cmu sb-thread openmcl ccl mcl digitool)
+		#-(or allegro cmu sbcl openmcl ccl mcl digitool)
 		(progn (doit)))
 	       (t
 		(doit)))))))))
