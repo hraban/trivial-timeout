@@ -83,11 +83,11 @@ or is interrupted."
 		       (lambda ()
 			 (setf ,result (progn (,doit-symbol))))))) 
        (ccl:process-wait-with-timeout
-	,waiting-process
-	(* ,gseconds #+(or openmcl ccl)
-	   ccl:*ticks-per-second* #+digitool 60)
-	(lambda ()
-	  (not (ccl::process-active-p ,process)))) 
+  ,waiting-process
+  (* ,seconds-symbol #+(or openmcl ccl)
+     ccl:*ticks-per-second* #+digitool 60)
+  (lambda ()
+    (not (ccl::process-active-p ,process)))) 
        (when (ccl::process-active-p ,process)
 	 (ccl:process-kill ,process)
 	 (cerror "Timeout" 'timeout-error))
