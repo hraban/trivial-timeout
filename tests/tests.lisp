@@ -13,7 +13,7 @@ these tests are both very unixy
   test-1
   (multiple-value-bind (result measures condition)
       (handler-case
-	  (lift::while-measuring (seconds)
+	  (lift::while-measuring (:measure-seconds)
 	    (with-timeout (0.5) 
 	      (sleep 1.0)))
 	(error (c)

@@ -13,26 +13,6 @@
   (:documentation "An error signaled when the duration specified in 
 the [with-timeout][] is exceeded."))
 
-(defmacro with-timeout ((seconds) &body body)
-  "Execute `body` for no more than `seconds` time. 
-
-If `seconds` is exceeded, then a [timeout-error][] will be signaled. 
-
-If `seconds` is nil, then the body will be run normally until it completes
-or is interrupted."
-  (build-with-timeout seconds body))
-
-(defun build-with-timeout (seconds body)
-  (let ((gseconds (gensym "seconds-"))
-  (gdoit (gensym "doit-")))
-    `(let ((,gseconds ,seconds))
-       (flet ((,gdoit ()
-    (progn ,@body)))
-   (cond (,gseconds
-    ,(generate-platform-specific-code gseconds gdoit))
-         (t
-    (,gdoit)))))))
-
 #+allegro
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
   `(mp:with-timeout (,seconds-symbol (error 'timeout-error)) 
@@ -93,6 +73,25 @@ or is interrupted."
    (cerror "Timeout" 'timeout-error))
        (values-list ,result))))
 
+#+(or digitool openmcl ccl)
+(defun generate-platform-specific-code (seconds-symbol doit-symbol)
+  (let ((gsemaphore (gensym "semaphore"))
+	(gresult (gensym "result"))
+	(gprocess (gensym "process")))
+   `(let* ((,gsemaphore (ccl:make-semaphore))
+           (,gresult)
+           (,gprocess
+            (ccl:process-run-function
+             ,(format nil "Timed Process ~S" gprocess)
+             (lambda ()
+               (setf ,gresult (multiple-value-list (,doit-symbol)))
+               (ccl:signal-semaphore ,gsemaphore)))))
+      (cond ((ccl:timed-wait-on-semaphore ,gsemaphore ,seconds-symbol)
+             (values-list ,gresult))
+            (t
+             (ccl:process-kill ,gprocess)
+             (error 'timeout-error))))))
+
 #+lispworks
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
   (let ((gresult (gensym "result-"))
@@ -119,5 +118,26 @@ or is interrupted."
   (defun generate-platform-specific-code (seconds-symbol doit-symbol)
     (declare (ignore seconds-symbol))
     `(,doit-symbol)))
+
+(defmacro with-timeout ((seconds) &body body)
+  "Execute `body` for no more than `seconds` time. 
+
+If `seconds` is exceeded, then a [timeout-error][] will be signaled. 
+
+If `seconds` is nil, then the body will be run normally until it completes
+or is interrupted."
+  (build-with-timeout seconds body))
+
+(defun build-with-timeout (seconds body)
+  (let ((gseconds (gensym "seconds-"))
+  (gdoit (gensym "doit-")))
+    `(let ((,gseconds ,seconds))
+       (flet ((,gdoit ()
+    (progn ,@body)))
+   (cond (,gseconds
+    ,(generate-platform-specific-code gseconds gdoit))
+         (t
+    (,gdoit)))))))
+
 
 ))
