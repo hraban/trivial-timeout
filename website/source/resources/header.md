@@ -1,6 +1,6 @@
 {include shared-links.md}
 {set-property html yes}
-{set-property style-sheet "http://common-lisp.net/project/cl-containers/shared/style-200.css"}
+{set-property style-sheet "style.css"}
 {set-property author "Gary Warren King"}
 {set-property docs-package trivial-timeout}
 

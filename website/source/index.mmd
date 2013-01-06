@@ -4,7 +4,6 @@
 <div class="contents">
 <div class="system-links">
 
-  * [Mailing Lists][]
   * [Getting it][]
   * [News][]
   * [Test results][]
@@ -15,7 +14,7 @@
 
 ### What it is
 
-Sometimes you don't have the time to wait. 
+Sometimes you don't have the time to wait.
 
 Although most Lisps have a mechanism to write code that says
 "do _this_ for 5 seconds and give up if you're not done",
@@ -27,7 +26,7 @@ independent syntax for timeouts. You use it like this:
       (run-some-long-running-code))
 
 If `duration` (a time in seconds) is exceeded, then a
-`timeout-error` will be signaled. A more idiomatic example 
+`timeout-error` will be signaled. A more idiomatic example
 would probably be:
 
     (handler-case
@@ -41,32 +40,23 @@ Here's the full skinny:
 
 {docs with-timeout}
 {docs timeout-error}
- 
-{anchor mailing-lists}
-
-### Mailing Lists
-
-  * [trivial-timeout-devel][devel-list]: A list for questions, patches,
-    bug reports, and so on; You name it, it's for it.
 
 {anchor downloads}
 
 ### Where is it
 
-A [darcs][] repository is available. The darcs command is:
-    
-    darcs get {{property darcs-link}}
+the current trivial-timeout repository is on
+[github][github-trivial-timeout] and you can clone it using:
 
-trivial-timeout is also [ASDF installable][asdf-install]. Its
-CLiki home is right [where][cliki-home] you'd
-expect.
+    git clone git://github.com/gwkkwg/trivial-timeout
 
-There's also a handy [gzipped tar file][tarball].
 
 
 {anchor news}
 
 ### What is happening
+
+5 Jan 2013 - Just cleanup, nothing exciting happening here.
 
 10 Sept 2008 - Separated trivial-timeout from [lift][] and
 [trivial-shell][]. There was much rejoicing.
