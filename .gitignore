@@ -6,9 +6,14 @@ GNUmakefile
 init-lisp.lisp
 project-init.lisp
 
-log5.tar.gz
+trivial-timeout.tar.gz
+website/changelog.xml
 website/output/
 test-results/
 lift-local.config
 *.dribble
 *.fasl
+
+# new ASDF stuff
+*.*-warnings
+*.build-report
