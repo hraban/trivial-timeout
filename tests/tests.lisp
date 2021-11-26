@@ -12,17 +12,43 @@ these tests are both very unixy
 (addtest (trivial-timeout-test)
   test-1
   (multiple-value-bind (result measures condition)
-      (handler-case
-	  (lift::while-measuring (:measure-seconds)
-	    (with-timeout (0.5) 
-	      (sleep 1.0)))
-	(error (c)
-	  (declare (ignore c))))
+      (lift:while-measuring (t :measure-seconds)
+	(with-timeout (0.5)
+	  (sleep 1.0)))
     (declare (ignore result))
-    (ensure (< (first measures) 0.75) :report "timeout worked")
+    (ensure (= (length measures) 1) :report "Measures received")
+    (ensure (< (first measures) 0.75) :report "Timeout worked")
     (ensure (and condition (typep condition 'timeout-error))
 	    :report "Received timeout error")))
 
+
+(define-condition custom-error (error)
+  ())
+
+(addtest (trivial-timeout-test)
+  test-2
+  ;; If some signal is raised inside WITH-TIMEOUT block,
+  ;; should be signaled in the current thread
+  ;; and we must be able to ignore it using IGNORE-ERRORS
+  ;; or catch using HANDLER-BIND or HANDLER-CASE.
+  ;;
+  ;; In this test WHILE-MEASURING macro uses HANDLER-BIND
+  ;; to catch our CUSTOM-ERROR and to return it as third value.
+  ;;
+  ;; There was a bug on LispWorks when this didn't work and
+  ;; error was signaled in a separate thread.
+  (multiple-value-bind (result measures condition)
+      (lift:while-measuring (t :measure-seconds)
+	(with-timeout (0.5)
+          (error 'custom-error)))
+    (declare (ignore result))
+    (ensure (= (length measures) 1) :report "Measures received")
+    (ensure (< (first measures) 0.5)
+            :report "Code should return less than timeout. I've got ~A seconds."
+            :arguments ((first measures)))
+    (ensure (and condition (typep condition 'custom-error))
+	    :report "Received condition ~A, but it should be a CUSTOM-ERROR."
+            :arguments ((type-of condition)))))
 
 
 #|

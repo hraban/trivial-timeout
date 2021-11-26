@@ -94,22 +94,27 @@ the [with-timeout][] is exceeded."))
 
 #+lispworks
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
-  (let ((gresult (gensym "result-"))
-  (gprocess (gensym "process-")))
-    `(let* (,gresult
-      (,gprocess (mp:process-run-function
-      "WITH-TIMEOUT"
-      '()
-      (lambda ()
-        (setq ,gresult (multiple-value-list (,doit-symbol)))))))
-       (unless (mp:process-wait-with-timeout
-    "WITH-TIMEOUT"
-    ,seconds-symbol
-    (lambda ()
-      (not (mp:process-alive-p ,gprocess))))
-   (mp:process-kill ,gprocess)
-   (cerror "Timeout" 'timeout-error))
-       (values-list ,gresult))))
+  ;; For LispWorks, we'll start a separate "guard" thread which
+  ;; will interrupt the current thread when timeout will happen.
+  ;; 
+  ;; If a computation finishes before timeout, it terminates "guard"
+  ;; thread.
+  (let ((g-main-process (gensym "main-process-"))
+        (g-guard-process (gensym "guard-process-")))
+    `(let* ((,g-main-process (mp:get-current-process))
+            (,g-guard-process
+              (mp:process-run-function
+               "WITH-TIMEOUT" ()
+               (lambda ()
+                 (mp:process-wait-with-timeout "WITH-TIMEOUT" ,seconds-symbol)
+
+                 ;; body didn't return yet
+                 (mp:process-interrupt ,g-main-process
+                                       (lambda ()
+                                         (cerror "Timeout" 'timeout-error)))))))
+       (unwind-protect
+            (,doit-symbol)
+         (mp:process-terminate ,g-guard-process)))))
 
 (unless (let ((symbol
          (find-symbol (symbol-name '#:generate-platform-specific-code)
