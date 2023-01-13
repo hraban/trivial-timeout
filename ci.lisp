@@ -16,7 +16,10 @@
           :os ("ubuntu-latest"
                "macos-latest")
           :lisp ("sbcl-bin"
-                 "ccl-bin"
+                 ;; Because of this issue:
+                 ;; https://github.com/roswell/roswell/issues/534
+                 ;; we have to pin version of CCL
+                 "ccl-bin/1.12.1"
                  "allegro"
                  "lispworks"
                  "clisp"
