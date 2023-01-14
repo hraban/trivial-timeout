@@ -1,4 +1,4 @@
-(in-package #:hajovonta.trivial-timeout)
+(in-package #:com.metabang.trivial-timeout)
 
 (define-condition timeout-error (error) ()
   (:report (lambda (c s)
@@ -112,7 +112,7 @@ the [with-timeout][] is exceeded."))
 
 (unless (let ((symbol
                 (find-symbol (symbol-name '#:generate-platform-specific-code)
-                             '#:hajovonta.trivial-timeout)))
+                             '#:com.metabang.trivial-timeout)))
           (and symbol (fboundp symbol)))
   (defun generate-platform-specific-code (seconds-symbol doit-symbol)
     (declare (ignore seconds-symbol))
