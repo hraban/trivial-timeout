@@ -1,10 +1,5 @@
 (in-package #:hajovonta.trivial-timeout)
 
-;; (unless (and (find-symbol (symbol-name '#:with-timeout)
-;;                           '#:hajovonta.trivial-timeout)
-;;              (fboundp (find-symbol (symbol-name '#:with-timeout)
-;;                                    '#:hajovonta.trivial-timeout))))
-
 (define-condition timeout-error (error) ()
   (:report (lambda (c s)
              (declare (ignore c))
@@ -142,5 +137,3 @@ or is interrupted."
                 ,(generate-platform-specific-code gseconds gdoit))
                (t
                 (,gdoit)))))))
-;; (eval-when (:compile-toplevel :load-toplevel :execute)
-;;   )
