@@ -64,28 +64,6 @@ the [with-timeout][] is exceeded."))
 
 #+(or digitool openmcl ccl)
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
-  (let ((checker-process (format nil "Checker ~S" (gensym)))
-        (waiting-process (format nil "Waiter ~S" (gensym)))
-        (result (gensym))
-        (process (gensym)))
-    `(let* ((,result nil)
-            (,process (ccl:process-run-function 
-                       ,checker-process
-                       (lambda ()
-                         (setf ,result (multiple-value-list (,doit-symbol))))))) 
-       (ccl:process-wait-with-timeout
-        ,waiting-process
-        (* ,seconds-symbol #+(or openmcl ccl)
-                           ccl:*ticks-per-second* #+digitool 60)
-        (lambda ()
-          (not (ccl::process-active-p ,process)))) 
-       (when (ccl::process-active-p ,process)
-         (ccl:process-kill ,process)
-         (cerror "Timeout" 'timeout-error))
-       (values-list ,result))))
-
-#+(or digitool openmcl ccl)
-(defun generate-platform-specific-code (seconds-symbol doit-symbol)
   (let ((gsemaphore (gensym "semaphore"))
 	(gresult (gensym "result"))
 	(gprocess (gensym "process")))
