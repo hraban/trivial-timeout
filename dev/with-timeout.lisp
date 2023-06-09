@@ -37,6 +37,25 @@ the [with-timeout][] is exceeded."))
        (error 'timeout-error))))
 
 #+cmu
+;;; Run function in separate process since SLEEP in initial process is blocking.
+;;; It still doesn't resolve the infinite loop problem
+(defun generate-platform-specific-code (seconds-symbol doit-symbol)
+  (let ((result (gensym))
+        (function-process (gensym)))
+    `(let* ((,result nil)
+            (,function-process (mp:make-process (lambda ()
+                                                  (setf ,result (multiple-value-list (,doit-symbol))))
+                                                :name "Timeout function process")))
+       (mp:process-wait-with-timeout "Timeout sleep" ,seconds-symbol
+                                     (lambda ()
+                                       (not (mp:process-alive-p ,function-process))))
+       (if (mp:process-alive-p ,function-process)
+           (progn
+             (mp:destroy-process ,function-process)
+             (error 'timeout-error))
+           (apply #'values ,result)))))
+
+#+(or)
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
   `(mp:with-timeout (,seconds-symbol (error 'timeout-error))
      (,doit-symbol)))
