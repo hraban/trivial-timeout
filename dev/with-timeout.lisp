@@ -37,13 +37,9 @@ the [with-timeout][] is exceeded."))
        (error 'timeout-error))))
 
 #+cmu
-;;; surely wrong
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
-  `(handler-case 
-       (mp:with-timeout (seconds-symbol) (,doit-symbol))
-     (sb-ext::timeout (c)
-       (declare (ignore c))
-       (error 'timeout-error))))
+  `(mp:with-timeout (,seconds-symbol (error 'timeout-error))
+     (,doit-symbol)))
 
 #+(or digitool openmcl ccl)
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
