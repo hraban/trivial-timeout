@@ -56,6 +56,8 @@ the [with-timeout][] is exceeded."))
            (apply #'values ,result)))))
 
 #+(or)
+;;; Version using CMUCL's with-timeout.
+;;; Left in case it becomes better than the version above.
 (defun generate-platform-specific-code (seconds-symbol doit-symbol)
   `(mp:with-timeout (,seconds-symbol (error 'timeout-error))
      (,doit-symbol)))
